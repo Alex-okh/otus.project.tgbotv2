@@ -45,7 +45,7 @@ public class CheckRepeatsProcessor implements FeatureProcessor {
     if (dublicatesFound && update.getEventType() != EventTypes.EDITED_MESSAGE) {
       int threadID = update.getMessageThreadId();
       SendMessage sm = new SendMessage(update.getChatId(),
-                                       "Повторы не чаще раза в неделю!").messageThreadId(threadID);
+                                       "%s, повторы не чаще раза в неделю!".formatted(update.getTagUserName())).messageThreadId(threadID);
       logger.info("Deleting repeated message from {} . ",
                   update.getSenderId());
       DeleteMessage dm = new DeleteMessage(update.getChatId(),
