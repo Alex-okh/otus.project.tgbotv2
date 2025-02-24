@@ -31,7 +31,7 @@ public class CheckExplicitProcessor implements FeatureProcessor {
     }
 
     SendMessage sm = new SendMessage(update.getChatId(),
-                                     "Кто будет материться получит бан ;-)");
+                                     "%s, не ругайся! ".formatted(update.getTagUserName()));
     int userRating = commonData.decUserRating(update.getSenderId());
     logger.info("User {} rating decreased. Current rating = {}.",
                 update.getSenderId(),

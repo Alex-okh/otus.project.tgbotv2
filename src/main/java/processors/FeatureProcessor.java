@@ -6,4 +6,5 @@ import processors.util.UpdateData;
 
 public interface FeatureProcessor {
   boolean processFeature(UpdateData update, TelegramBot bot);
+
 }
