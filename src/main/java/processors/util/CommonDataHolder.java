@@ -1,24 +1,26 @@
 package processors.util;
 
+import com.pengrad.telegrambot.request.DeleteMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CommonDataHolder {
   private static final Logger logger = LogManager.getLogger(CommonDataHolder.class);
   private MyDBConnection db;
   private Map<String, String> forwardedFromPrivate;
   private Map<Long, User> knownPublicUsers;
+  private SortedMap<Date, DeleteMessage> deleteQueue;
 
   public CommonDataHolder() {
     knownPublicUsers = new HashMap<>();
     forwardedFromPrivate = new HashMap<>();
     db = MyDBConnection.getInstance();
+    deleteQueue = new TreeMap<>();
     loadDatafromDB();
   }
 
@@ -156,6 +158,23 @@ public class CommonDataHolder {
       logger.error("Error loading users from DB. Error: {}",
                    ex.toString());
     }
+  }
+
+  public synchronized void addDelayedMessage(DeleteMessage message, int delaySeconds) {
+    Date deleteDate = new Date(new Date().getTime() + delaySeconds * 1000);
+    deleteQueue.put(deleteDate,
+                    message);
+  }
+
+  public synchronized Date getNextDeletedTime() {
+    if (deleteQueue.isEmpty()) {
+      return null;
+    }
+    return deleteQueue.firstKey();
+  }
+
+  public synchronized DeleteMessage getDelayedMessage() {
+    return deleteQueue.remove(deleteQueue.firstKey());
   }
 }
 

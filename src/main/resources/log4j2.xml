@@ -8,10 +8,10 @@
     <!-- Логи выводятся в консоль и файл. Сообщения с уровнем error дублируются в logs/error.log. Файлы не более 5Мб и не более 10 шт. -->
 
     <Appenders>
-        <!-- Консольный аппендер: выводит логи в стандартный вывод (консоль). -->
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
-        </Console>
+<!--        &lt;!&ndash; Консольный аппендер: выводит логи в стандартный вывод (консоль). &ndash;&gt;-->
+<!--        <Console name="Console" target="SYSTEM_OUT">-->
+<!--            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>-->
+<!--        </Console>-->
 
         <!-- Файловый аппендер для записи логов в app.log с ротацией по размеру -->
         <RollingFile name="FileLogger" fileName="logs/app.log" filePattern="logs/app-%d{yyyy-MM-dd}-%i.log" append="true">
@@ -38,7 +38,7 @@
     <Loggers>
         <!-- Корневой логгер: применяется по умолчанию ко всем классам. -->
         <Root level="INFO">
-            <AppenderRef ref="Console"/> &lt;! Логи выводятся в консоль ;&gt;
+<!--            <AppenderRef ref="Console"/> &lt;! Логи выводятся в консоль ;&gt;-->
             <AppenderRef ref="FileLogger"/> <!-- Логи записываются в app.log -->
             <AppenderRef ref="ErrorFileLogger"/> <!-- Ошибки ERROR записываются в error.log -->
         </Root>

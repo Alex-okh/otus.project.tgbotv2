@@ -23,6 +23,7 @@ public class NewDispatcher {
   private FeatureProcessor personalCommandProcessor;
   private FeatureProcessor publicHelperProcessor;
   private FeatureProcessor checkRepeatsProcessor;
+  private DelayedDeleteProcessor delayedDeleteProcessor;
 
   public NewDispatcher(TelegramBot bot) {
     this.bot = bot;
@@ -36,8 +37,9 @@ public class NewDispatcher {
     userConfirmationProcessor = new UserConfirmationProcessor(commonData);
     personalCommandProcessor = new PersonalCommandProcessor(commonData);
     publicHelperProcessor = new PublicHelperProcessor(commonData);
-    checkRepeatsProcessor = new CheckRepeatsProcessor();
+    checkRepeatsProcessor = new CheckRepeatsProcessor(commonData);
     adminCommandProcessor = new AdminCommandProcessor(commonData);
+    delayedDeleteProcessor = new DelayedDeleteProcessor(bot, commonData);
 
     processors.add(checkRepeatsProcessor);
     processors.add(checkExplicitProcessor);
@@ -48,6 +50,9 @@ public class NewDispatcher {
     processors.add(personalCommandProcessor);
     processors.add(publicHelperProcessor);
     processors.add(adminCommandProcessor);
+
+    Thread delayThread = new Thread(delayedDeleteProcessor);
+    delayThread.start();
   }
 
   public void processUpdate(Update update) {

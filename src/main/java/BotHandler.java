@@ -31,8 +31,9 @@ public class BotHandler {
   public void run() {
     long updateProcessingTime = 0;
     while (isRunning) {
-      GetUpdates getUpdates = new GetUpdates().limit(100).offset(updatesOffcet).timeout(0);
+      GetUpdates getUpdates = new GetUpdates().limit(100).offset(updatesOffcet).timeout(30);
       try {
+
         GetUpdatesResponse updatesResponse = bot.execute(getUpdates);
         List<Update> updates = updatesResponse.updates();
         connectionTimeout = 1;

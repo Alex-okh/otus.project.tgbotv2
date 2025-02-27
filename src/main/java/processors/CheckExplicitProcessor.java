@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.request.BanChatMember;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import processors.util.*;
@@ -38,7 +39,10 @@ public class CheckExplicitProcessor implements FeatureProcessor {
                 userRating);
     DeleteMessage dm = new DeleteMessage(update.getChatId(),
                                          update.getMessageID());
-    bot.execute(sm);
+    SendResponse sr = bot.execute(sm);
+    DeleteMessage delayedDelete = new DeleteMessage(update.getChatId(), sr.message().messageId());
+    commonData.addDelayedMessage(delayedDelete,15);
+
     bot.execute(dm);
     if (userRating < options.getBanThreshold()) {
       BanChatMember bm = new BanChatMember(update.getChatId(),
