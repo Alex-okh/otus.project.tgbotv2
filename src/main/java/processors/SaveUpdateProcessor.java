@@ -27,7 +27,7 @@ public class SaveUpdateProcessor implements FeatureProcessor {
 
   @Override
   public boolean processFeature(UpdateData update, TelegramBot bot) {
-
+    db = MyDBConnection.getInstance();
     saveUpdateToDB(update.getRawUpdate());
 
     if ((update.getEventType() == EventTypes.NEW_MESSAGE || update.getEventType() == EventTypes.EDITED_MESSAGE) &&

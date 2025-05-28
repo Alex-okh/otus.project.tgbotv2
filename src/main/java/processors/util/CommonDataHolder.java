@@ -1,24 +1,26 @@
 package processors.util;
 
+import com.pengrad.telegrambot.request.DeleteMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class CommonDataHolder {
   private static final Logger logger = LogManager.getLogger(CommonDataHolder.class);
   private MyDBConnection db;
   private Map<String, String> forwardedFromPrivate;
   private Map<Long, User> knownPublicUsers;
+  private SortedMap<Date, DeleteMessage> deleteQueue;
 
   public CommonDataHolder() {
     knownPublicUsers = new HashMap<>();
     forwardedFromPrivate = new HashMap<>();
     db = MyDBConnection.getInstance();
+    deleteQueue = new TreeMap<>();
     loadDatafromDB();
   }
 
@@ -33,6 +35,7 @@ public class CommonDataHolder {
   }
 
   public void addUser(long userID, String userFirstName, String userLastName, String userName, boolean isOld) {
+    db = MyDBConnection.getInstance();
     String SAVE_USER_QUERY = "insert into user_data (user_id,firstname, lastname,username,rating,isconfirmed,totalmessages) values (?, ?, ?, ?, ?, ?,?)";
 
     User newUser = new User(userID,
@@ -72,6 +75,7 @@ public class CommonDataHolder {
   }
 
   public void addMessageCount(long userID) {
+    db = MyDBConnection.getInstance();
     User user = knownPublicUsers.get(userID);
     user.addMessagesCount();
     String ADD_MSG_COUNT_QUERY = "UPDATE user_data SET totalmessages = totalmessages + 1 WHERE user_id=?";
@@ -95,6 +99,7 @@ public class CommonDataHolder {
   }
 
   public int decUserRating(long userID) {
+    db = MyDBConnection.getInstance();
     logger.info("decUserRating(userID) {}",
                 userID);
 
@@ -116,6 +121,7 @@ public class CommonDataHolder {
   }
 
   public void approveUser(long userID) {
+    db = MyDBConnection.getInstance();
     User user = knownPublicUsers.get(userID);
     user.confirm();
     String APPROVE_QUERY = "UPDATE user_data SET isconfirmed = true WHERE user_id=?";
@@ -134,6 +140,7 @@ public class CommonDataHolder {
   }
 
   private void loadDatafromDB() {
+    db = MyDBConnection.getInstance();
     try (PreparedStatement prs = db.dbconnection.prepareStatement("select * from user_data")) {
       ResultSet rs = prs.executeQuery();
       int totalUsers = 0;
@@ -156,6 +163,23 @@ public class CommonDataHolder {
       logger.error("Error loading users from DB. Error: {}",
                    ex.toString());
     }
+  }
+
+  public synchronized void addDelayedMessage(DeleteMessage message, int delaySeconds) {
+    Date deleteDate = new Date(new Date().getTime() + delaySeconds * 1000);
+    deleteQueue.put(deleteDate,
+                    message);
+  }
+
+  public synchronized Date getNextDeletedTime() {
+    if (deleteQueue.isEmpty()) {
+      return null;
+    }
+    return deleteQueue.firstKey();
+  }
+
+  public synchronized DeleteMessage getDelayedMessage() {
+    return deleteQueue.remove(deleteQueue.firstKey());
   }
 }
 
