@@ -7,7 +7,7 @@ import java.sql.*;
 
 public class MyDBConnection {
   private static final Logger logger = LogManager.getLogger(MyDBConnection.class);
-  private static final MyDBConnection INSTANCE = new MyDBConnection();
+  private static MyDBConnection INSTANCE = new MyDBConnection();
   public final Connection dbconnection;
   private final Options options;
 
@@ -46,8 +46,8 @@ public class MyDBConnection {
       newDBconnection = DriverManager.getConnection(options.getDbPrefix()+options.getDbPath()+":"+options.getDbPort()+"/bot_db", options.getDbUser(), options.getDbPassword());
       logger.info("Connected to database...");
     } catch (SQLException ex) {
-      logger.fatal("Could not connect to database, Errorcode : {}", ex.toString());
-      System.exit(1);
+      logger.error("Could not connect to database, Errorcode : {}", ex.toString());
+
     }
     dbconnection = newDBconnection;
     if (isDBExist()) {
@@ -59,14 +59,22 @@ public class MyDBConnection {
         prs.execute();
         logger.info("Database created");
       } catch (SQLException ex) {
-        logger.fatal("Could not create database, Errorcode : {}", ex.toString());
-        System.exit(1);
+        logger.error("Could not create database, Errorcode : {}", ex.toString());
+
       }
     }
 
   }
 
   public static MyDBConnection getInstance() {
+    boolean isValid = false;
+    try { isValid = INSTANCE.dbconnection.isValid(5); }
+    catch (SQLException ignored) {
+      logger.error("Could not connect to database, Errorcode : {}", ignored.toString());
+    }
+
+    if (INSTANCE == null || INSTANCE.dbconnection == null || !isValid) {
+      INSTANCE = new MyDBConnection();}
     return INSTANCE;
   }
 

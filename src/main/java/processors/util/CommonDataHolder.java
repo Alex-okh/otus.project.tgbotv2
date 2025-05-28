@@ -35,6 +35,7 @@ public class CommonDataHolder {
   }
 
   public void addUser(long userID, String userFirstName, String userLastName, String userName, boolean isOld) {
+    db = MyDBConnection.getInstance();
     String SAVE_USER_QUERY = "insert into user_data (user_id,firstname, lastname,username,rating,isconfirmed,totalmessages) values (?, ?, ?, ?, ?, ?,?)";
 
     User newUser = new User(userID,
@@ -74,6 +75,7 @@ public class CommonDataHolder {
   }
 
   public void addMessageCount(long userID) {
+    db = MyDBConnection.getInstance();
     User user = knownPublicUsers.get(userID);
     user.addMessagesCount();
     String ADD_MSG_COUNT_QUERY = "UPDATE user_data SET totalmessages = totalmessages + 1 WHERE user_id=?";
@@ -97,6 +99,7 @@ public class CommonDataHolder {
   }
 
   public int decUserRating(long userID) {
+    db = MyDBConnection.getInstance();
     logger.info("decUserRating(userID) {}",
                 userID);
 
@@ -118,6 +121,7 @@ public class CommonDataHolder {
   }
 
   public void approveUser(long userID) {
+    db = MyDBConnection.getInstance();
     User user = knownPublicUsers.get(userID);
     user.confirm();
     String APPROVE_QUERY = "UPDATE user_data SET isconfirmed = true WHERE user_id=?";
@@ -136,6 +140,7 @@ public class CommonDataHolder {
   }
 
   private void loadDatafromDB() {
+    db = MyDBConnection.getInstance();
     try (PreparedStatement prs = db.dbconnection.prepareStatement("select * from user_data")) {
       ResultSet rs = prs.executeQuery();
       int totalUsers = 0;

@@ -28,6 +28,7 @@ public class CheckRepeatsProcessor implements FeatureProcessor {
 
   @Override
   public boolean processFeature(UpdateData update, TelegramBot bot) {
+    db = MyDBConnection.getInstance();
     if (skipProcessing(update)) {
       return true;
     }
